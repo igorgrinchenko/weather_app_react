@@ -19,7 +19,6 @@ class CustomSlider extends Component {
 
   getTemp = (tempValue) => {
     const { temperature } = this.props;
-    console.log(isNaN(temperature));
     if (isNaN(temperature)) {
       return Math.round(temperature[tempValue]) + "°C";
     }
