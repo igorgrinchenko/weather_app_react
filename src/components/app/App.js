@@ -63,6 +63,7 @@ class App extends Component {
     )
       .then((response) => response.json())
       .then((data) => {
+        this.getForecastInfo(data.name);
         this.setState({
           temperature: this.convertToCelsius(data.main.temp),
           windSpeed: data.wind.speed + "km/h",
@@ -94,7 +95,7 @@ class App extends Component {
         headers: {
           "x-rapidapi-host": "weatherbit-v1-mashape.p.rapidapi.com",
           "x-rapidapi-key":
-            "485cc826a9msh6710cc5ccebd312p1dc5eejsn3e425a6cca76",
+            "657efc6598mshe03b34b15c5d0dap17c60ajsn0ae1571e0c9a",
         },
       }
     )
@@ -186,6 +187,7 @@ class App extends Component {
       forecastClouds,
       forecastDateTimes,
     } = this.state;
+
     return (
       <div className="App">
         <div className="container">
