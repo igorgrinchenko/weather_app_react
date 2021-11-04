@@ -1,9 +1,11 @@
-import React from "react";
+import { React, Component } from "react";
+
 import "./current-weather-info.scss";
+
 import hum from "../../icons/hum.png";
 import wind from "../../icons/wind.png";
 
-class CurrentWeatherInfo extends React.Component {
+class CurrentWeatherInfo extends Component {
   render() {
     const { windSpeed, humidity, pressure } = this.props;
     return (

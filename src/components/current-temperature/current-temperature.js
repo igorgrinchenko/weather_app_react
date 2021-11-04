@@ -1,7 +1,7 @@
-import React from "react";
+import { React, Component } from "react";
 import "./current-temperature.scss";
 
-class CurrentTemperature extends React.Component {
+class CurrentTemperature extends Component {
   render() {
     const { temperature } = this.props;
     return <div className="current-temperature">{temperature}</div>;

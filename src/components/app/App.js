@@ -1,49 +1,92 @@
-import React from "react";
-import "./App.scss";
+import { React, Component } from "react";
+
 import CurrentWeatherIcon from "../current-weather-icon/current-weather-icon";
 import CurrentTemperature from "../current-temperature/current-temperature";
 import CurrentTime from "../current-time/current-time";
 import CurrentWeatherInfo from "../current-weather-info/current-weather-info";
+import CustomSlider from "../slider/slider";
+import Input from "../input/input";
+import Preloader from "../loader/loader";
+import CityName from "../city-name/city-name";
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      temperature: "",
-      windSpeed: "",
-      humidity: "",
-      pressure: "",
-      numberDay: "",
-      weekDay: "",
-      month: "",
-      year: "",
-      time: "",
-    };
+import "./App.scss";
 
-    this.getWeatherInfo = this.getWeatherInfo.bind(this);
-    this.getForecastInfo = this.getForecastInfo.bind(this);
-    this.getCurrentTime = this.getCurrentTime.bind(this);
-    this.convertToCelsius = this.convertToCelsius.bind(this);
-    this.convertPressure = this.convertPressure.bind(this);
-  }
+class App extends Component {
+  state = {
+    temperature: "",
+    windSpeed: "",
+    humidity: "",
+    pressure: "",
+    weatherIcon: "",
+    seconds: "",
+    numberDay: "",
+    weekDay: "",
+    month: "",
+    year: "",
+    time: "Loading...",
+    isLoader: false,
+    forecastTemp: [],
+    forecastClouds: [],
+    forecastDateTimes: [],
+    cityName: "",
+    country: "",
+  };
 
   getWeatherInfo = (cityName) => {
+    this.setState({ isLoader: true });
     fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=014875972702e245570e39f83fe6ab27`
     )
       .then((response) => response.json())
       .then((data) => {
-        this.setState({ temperature: this.convertToCelsius(data.main.temp) });
-        this.setState({ windSpeed: data.wind.speed + "km/h" });
-        this.setState({ humidity: data.main.humidity + "%" });
-        this.setState({ pressure: this.convertPressure(data.main.pressure) });
+        this.setState({
+          temperature: this.convertToCelsius(data.main.temp),
+          windSpeed: data.wind.speed + "km/h",
+          humidity: data.main.humidity + "%",
+          pressure: this.convertPressure(data.main.pressure),
+          weatherIcon: data.weather[0].icon,
+          cityName: data.name,
+        });
       })
       .catch((err) => {
         console.error(err);
+      })
+      .finally(() => {
+        this.setState({ isLoader: false });
+      });
+  };
+
+  getWeatherInfoByLocation = (latitude, longitude) => {
+    this.setState({ isLoader: true });
+    fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=08d1316ba8742c08076e7425c28c2614`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        this.setState({
+          temperature: this.convertToCelsius(data.main.temp),
+          windSpeed: data.wind.speed + "km/h",
+          humidity: data.main.humidity + "%",
+          pressure: this.convertPressure(data.main.pressure),
+          weatherIcon: data.weather[0].icon,
+          cityName: data.name,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        this.setState({ isLoader: false });
       });
   };
 
   getForecastInfo = (cityName) => {
+    this.setState({ isLoader: true });
+
+    let forecastTemp = [];
+    let forecastClouds = [];
+    let forecastDateTimes = [];
+
     fetch(
       `https://weatherbit-v1-mashape.p.rapidapi.com/forecast/daily?&days=7&city=${cityName}`,
       {
@@ -51,31 +94,65 @@ class App extends React.Component {
         headers: {
           "x-rapidapi-host": "weatherbit-v1-mashape.p.rapidapi.com",
           "x-rapidapi-key":
-            "9f95c07416msha0635c48c8ed12bp11506ajsn7fa4b292ebaf",
+            "485cc826a9msh6710cc5ccebd312p1dc5eejsn3e425a6cca76",
         },
       }
     )
       .then((response) => response.json())
-      .then((data) => console.log(data.data))
+      .then((data) => {
+        data.data.forEach((item) => {
+          forecastTemp.push(item.temp);
+          forecastClouds.push(item.clouds);
+          forecastDateTimes.push(item.datetime);
+        });
+
+        this.setState({ cityName: data.city_name, country: data.country_code });
+      })
       .catch((err) => {
         console.error(err);
+      })
+      .finally(() => {
+        this.setState({ isLoader: false });
       });
+
+    this.setState({
+      forecastTemp: forecastTemp,
+      forecastClouds: forecastClouds,
+      forecastDateTimes: forecastDateTimes,
+    });
+  };
+
+  getCurrentLocationWeather = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.getWeatherInfoByLocation(
+          position.coords.latitude,
+          position.coords.longitude
+        );
+      });
+    }
   };
 
   getCurrentTime = () => {
-    this.setState({ numberDay: new Date().getDay() + "th" });
     this.setState({
+      numberDay: new Date().getDay() + "th",
       weekDay: new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(
         new Date()
       ),
-    });
-    this.setState({
       month: new Date().toLocaleString("en-us", { month: "short" }),
+      year: new Date().getFullYear(),
     });
-    this.setState({ year: new Date().getFullYear() });
-    this.setState({
-      time: new Date().getHours() + ":" + new Date().getMinutes(),
-    });
+
+    setInterval(() => {
+      this.setState({
+        time:
+          new Date().getHours() +
+          ":" +
+          new Date().getMinutes() +
+          ":" +
+          new Date().getSeconds(),
+      });
+    }, 1000);
   };
 
   convertToCelsius = (degrees) => {
@@ -87,28 +164,62 @@ class App extends React.Component {
   };
 
   componentDidMount() {
-    this.getWeatherInfo("Lviv");
-    this.getForecastInfo("Odessa");
     this.getCurrentTime();
+    this.getCurrentLocationWeather();
   }
 
   render() {
+    const {
+      cityName,
+      country,
+      weatherIcon,
+      temperature,
+      numberDay,
+      weekDay,
+      month,
+      year,
+      time,
+      windSpeed,
+      humidity,
+      pressure,
+      forecastTemp,
+      forecastClouds,
+      forecastDateTimes,
+    } = this.state;
     return (
       <div className="App">
-        <CurrentWeatherIcon />
-        <CurrentTemperature temperature={this.state.temperature} />
-        <CurrentTime
-          numberDay={this.state.numberDay}
-          weekDay={this.state.weekDay}
-          month={this.state.month}
-          year={this.state.year}
-          time={this.state.time}
-        />
-        <CurrentWeatherInfo
-          windSpeed={this.state.windSpeed}
-          humidity={this.state.humidity}
-          pressure={this.state.pressure}
-        />
+        <div className="container">
+          {this.state.isLoader ? (
+            <Preloader />
+          ) : (
+            <>
+              <Input
+                getWeatherInfo={this.getWeatherInfo}
+                getForecastInfo={this.getForecastInfo}
+              />
+              {cityName && <CityName city={cityName} country={country} />}
+              <CurrentWeatherIcon weatherIcon={weatherIcon} />
+              <CurrentTemperature temperature={temperature} />
+              <CurrentTime
+                numberDay={numberDay}
+                weekDay={weekDay}
+                month={month}
+                year={year}
+                time={time}
+              />
+              <CurrentWeatherInfo
+                windSpeed={windSpeed}
+                humidity={humidity}
+                pressure={pressure}
+              />
+              <CustomSlider
+                temperature={forecastTemp}
+                clouds={forecastClouds}
+                date={forecastDateTimes}
+              />
+            </>
+          )}
+        </div>
       </div>
     );
   }

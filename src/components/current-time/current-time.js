@@ -1,7 +1,7 @@
-import React from "react";
+import { React, Component } from "react";
 import "./current-time.scss";
 
-class CurrentTime extends React.Component {
+class CurrentTime extends Component {
   render() {
     const { numberDay, weekDay, month, year, time } = this.props;
     return (

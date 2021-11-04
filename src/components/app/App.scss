@@ -7,21 +7,17 @@
     color: white;
     font-weight: 100;
 }
+body {
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
 .App {
-    background: linear-gradient(#8CA3F6, #000F45);
-    min-height: 97vh;
-    .container {
-        padding: 0 15px;
-      }
-      
-      .title {
-        font-weight: 700;
-        font-size: 2.5em;
-        text-align: center;
-        margin: 1em 0;
-      }
-      
-      .slider {
-        margin: 0 -15px;
-      }
+  background: linear-gradient(#8CA3F6, #000F45);
+  .container {
+    max-width: 1440px;
+    padding: 0 40px;
+    margin: 0 auto;
+  }
 }
