@@ -37,9 +37,9 @@ class CustomSlider extends Component {
       return <img src={sunWithCloudsWeather} style={style} />;
     } else if (clouds[cloudsValue] > 50 && clouds[cloudsValue] <= 100) {
       return <img src={cloudsWeather} style={style} />;
-    } else {
-      return;
     }
+
+    return;
   };
 
   render() {
@@ -93,3 +93,5 @@ class CustomSlider extends Component {
 }
 
 export default CustomSlider;
+
+// Here I should refactor render section

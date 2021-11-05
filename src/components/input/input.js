@@ -2,19 +2,30 @@ import { React, Component } from "react";
 import "./input.scss";
 
 class Input extends Component {
+  state = {
+    cityValue: "",
+  };
   getCityValue = (e) => {
     if (e.keyCode === 13) {
       const { getWeatherInfo, getForecastInfo } = this.props;
-      const cityValue = document.getElementById("input").value; // pretty imperative style. It's better to split getCityValue to the onChange method to keep value and Enter key press handler
+      const { cityValue } = this.state;
       getWeatherInfo(cityValue);
       getForecastInfo(cityValue);
     }
   };
-
+  onChange = (e) => {
+    const { value } = e.target;
+    this.setState({ cityValue: value });
+  };
   render() {
     return (
       <div>
-        <input type="text" id="input" onKeyDown={this.getCityValue} />
+        <input
+          type="text"
+          id="input"
+          onKeyDown={this.getCityValue}
+          onChange={this.onChange}
+        />
       </div>
     );
   }

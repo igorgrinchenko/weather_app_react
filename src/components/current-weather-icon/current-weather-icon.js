@@ -15,76 +15,60 @@ import lightning from "../../icons/11d.png";
 import snow from "../../icons/13d.png";
 import mist from "../../icons/50d.png";
 
-// because you don't use any lifecycle methods it's better to turn this component to the functional type
-class CurrentWeatherIcon extends Component {
-  render() {
-    const { weatherIcon } = this.props;
-    let icon = new String();
+const CurrentWeatherIcon = ({ weatherIcon }) => {
+  let icon = "";
 
-    switch (weatherIcon) {
-      case "01d":
-        icon = sun;
-        break;
-      case "01n":
-        icon = moon;
-        break;
-      case "02d":
-        icon = sunWithClouds;
-        break;
-      case "02n":
-        icon = moonWithClouds; //duplication
-        break;
-      case "03d":
-        icon = clouds;
-        break;
-      case "03n":
-        icon = clouds; //duplication
-        break;
-      case "04d":
-        icon = brokenClouds;
-        break;
-      case "04n":
-        icon = brokenClouds; //duplication
-        break;
-      case "09d":
-        icon = rain;
-        break;
-      case "09n":
-        icon = rain; //duplication
-        break;
-      case "10d":
-        icon = rainWithSun;
-        break;
-      case "10n":
-        icon = rainWithMoon; //duplication
-        break;
-      case "11d":
-        icon = lightning;
-        break;
-      case "11n":
-        icon = lightning; //duplication
-        break;
-      case "13d":
-        icon = snow;
-        break;
-      case "13n":
-        icon = snow; //duplication
-        break;
-      case "50d":
-        icon = mist;
-        break;
-      case "50n":
-        icon = mist; //duplication
-        break;
-      default:
-        break;
-    }
-    return (
-      <div className="current-weather-icon">
-        <img src={icon} alt="icon" className="icon" />
-      </div>
-    );
+  switch (weatherIcon) {
+    case "01d":
+      icon = sun;
+      break;
+    case "01n":
+      icon = moon;
+      break;
+    case "02d":
+      icon = sunWithClouds;
+      break;
+    case "02n":
+      icon = moonWithClouds;
+      break;
+    case "03d":
+    case "03n":
+      icon = clouds;
+      break;
+    case "04d":
+    case "04n":
+      icon = brokenClouds;
+      break;
+    case "09d":
+    case "09n":
+      icon = rain;
+      break;
+    case "10d":
+      icon = rainWithSun;
+      break;
+    case "10n":
+      icon = rainWithMoon;
+      break;
+    case "11d":
+    case "11n":
+      icon = lightning;
+      break;
+    case "13d":
+    case "13n":
+      icon = snow;
+      break;
+    case "50d":
+    case "50n":
+      icon = mist;
+      break;
+    default:
+      break;
   }
-}
+  return (
+    <div className="current-weather-icon">
+      <img src={icon} alt="icon" className="icon" />
+    </div>
+  );
+};
 
 export default CurrentWeatherIcon;

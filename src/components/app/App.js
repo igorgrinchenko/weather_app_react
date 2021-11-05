@@ -95,7 +95,7 @@ class App extends Component {
         headers: {
           "x-rapidapi-host": "weatherbit-v1-mashape.p.rapidapi.com",
           "x-rapidapi-key":
-            "657efc6598mshe03b34b15c5d0dap17c60ajsn0ae1571e0c9a",
+            "9f95c07416msha0635c48c8ed12bp11506ajsn7fa4b292ebaf",
         },
       }
     )
