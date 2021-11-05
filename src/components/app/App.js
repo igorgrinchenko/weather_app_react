@@ -125,6 +125,7 @@ class App extends Component {
 
   getCurrentLocationWeather = () => {
     if (navigator.geolocation) {
+      this.setState({ isLoader: true });
       navigator.geolocation.getCurrentPosition((position) => {
         this.getWeatherInfoByLocation(
           position.coords.latitude,
@@ -135,23 +136,22 @@ class App extends Component {
   };
 
   getCurrentTime = () => {
+    const date = new Date();
     this.setState({
-      numberDay: new Date().getDay() + "th",
+      numberDay: date.getDay() + "th",
       weekDay: new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(
-        new Date()
+        date
       ),
-      month: new Date().toLocaleString("en-us", { month: "short" }),
-      year: new Date().getFullYear(),
+      month: date.toLocaleString("en-us", { month: "short" }),
+      year: date.getFullYear(),
+      time: date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
     });
 
     setInterval(() => {
+      const date = new Date();
       this.setState({
         time:
-          new Date().getHours() +
-          ":" +
-          new Date().getMinutes() +
-          ":" +
-          new Date().getSeconds(),
+          date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
       });
     }, 1000);
   };

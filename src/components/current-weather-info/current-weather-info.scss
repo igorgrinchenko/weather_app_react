@@ -1,13 +1,14 @@
 .current-weather-info {
-    margin-top: 50px;
+  margin-top: 50px;
+  display: flex;
+  div {
+    //it's better to have more specific selector instead of general div or img
     display: flex;
-    div {
-    display: flex;
-    margin:0 70px 0 0;
+    margin: 0 70px 0 0;
     align-self: center;
     justify-content: flex-start;
-    }
-    img {
-        margin-right: 10px;
-    }
+  }
+  img {
+    margin-right: 10px;
+  }
 }
