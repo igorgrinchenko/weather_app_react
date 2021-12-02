@@ -1,34 +1,32 @@
-import { React, Component } from "react";
+import { React, useState } from "react";
+import { enterButton } from "../../constants/constants";
 import "./input.scss";
 
-class Input extends Component {
-  state = {
-    cityValue: "",
-  };
-  getCityValue = (e) => {
-    if (e.keyCode === 13) {
-      const { getWeatherInfo, getForecastInfo } = this.props;
-      const { cityValue } = this.state;
+const Input = ({ getWeatherInfo, getForecastInfo }) => {
+  const [cityValue, setCityValue] = useState("");
+
+  const getCityValue = (event) => {
+    const { keyCode } = event;
+    const isEnterButtonPressed = keyCode === enterButton;
+    if (isEnterButtonPressed) {
       getWeatherInfo(cityValue);
       getForecastInfo(cityValue);
     }
   };
-  onChange = (e) => {
-    const { value } = e.target;
-    this.setState({ cityValue: value });
+  const onChange = (event) => {
+    const { value } = event.target;
+    setCityValue(value);
   };
-  render() {
-    return (
-      <div>
-        <input
-          type="text"
-          id="input"
-          onKeyDown={this.getCityValue}
-          onChange={this.onChange}
-        />
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <input
+        type="text"
+        id="input"
+        onKeyDown={getCityValue}
+        onChange={onChange}
+      />
+    </div>
+  );
+};
 
 export default Input;

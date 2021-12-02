@@ -9,6 +9,13 @@ import Input from "../input/input";
 import Preloader from "../loader/loader";
 import CityName from "../city-name/city-name";
 
+import {
+  forecastInfoHeader,
+  dateFormat,
+  long,
+  short,
+} from "../../constants/constants";
+
 import "./App.scss";
 
 class App extends Component {
@@ -23,13 +30,13 @@ class App extends Component {
     weekDay: "",
     month: "",
     year: "",
-    time: "Loading...",
-    isLoader: false,
+    time: "",
+    cityName: "",
+    country: "",
     forecastTemp: [],
     forecastClouds: [],
     forecastDateTimes: [],
-    cityName: "",
-    country: "",
+    isLoader: false,
   };
 
   getWeatherInfo = (cityName) => {
@@ -39,13 +46,14 @@ class App extends Component {
     )
       .then((response) => response.json())
       .then((data) => {
+        const { wind, main, weather, name } = data;
         this.setState({
-          temperature: this.convertToCelsius(data.main.temp),
-          windSpeed: data.wind.speed + "km/h",
-          humidity: data.main.humidity + "%",
-          pressure: this.convertPressure(data.main.pressure),
-          weatherIcon: data.weather[0].icon,
-          cityName: data.name,
+          temperature: this.convertToCelsius(main.temp),
+          windSpeed: `${wind.speed}km/h`,
+          humidity: `${main.humidity}%`,
+          pressure: this.convertPressure(main.pressure),
+          weatherIcon: weather[0].icon,
+          cityName: name,
         });
       })
       .catch((err) => {
@@ -63,14 +71,15 @@ class App extends Component {
     )
       .then((response) => response.json())
       .then((data) => {
-        this.getForecastInfo(data.name);
+        const { wind, main, weather, name } = data;
+        this.getForecastInfo(name);
         this.setState({
-          temperature: this.convertToCelsius(data.main.temp),
-          windSpeed: data.wind.speed + "km/h",
-          humidity: data.main.humidity + "%",
-          pressure: this.convertPressure(data.main.pressure),
-          weatherIcon: data.weather[0].icon,
-          cityName: data.name,
+          temperature: this.convertToCelsius(main.temp),
+          windSpeed: `${wind.speed}km/h`,
+          humidity: `${main.humidity}%`,
+          pressure: this.convertPressure(main.pressure),
+          weatherIcon: weather[0].icon,
+          cityName: name,
         });
       })
       .catch((err) => {
@@ -84,30 +93,28 @@ class App extends Component {
   getForecastInfo = (cityName) => {
     this.setState({ isLoader: true });
 
-    let forecastTemp = [];
-    let forecastClouds = [];
-    let forecastDateTimes = [];
+    const forecastTemp = [];
+    const forecastClouds = [];
+    const forecastDateTimes = [];
 
     fetch(
       `https://weatherbit-v1-mashape.p.rapidapi.com/forecast/daily?&days=7&city=${cityName}`,
       {
         method: "GET",
-        headers: {
-          "x-rapidapi-host": "weatherbit-v1-mashape.p.rapidapi.com",
-          "x-rapidapi-key":
-            "9f95c07416msha0635c48c8ed12bp11506ajsn7fa4b292ebaf",
-        },
+        headers: forecastInfoHeader,
       }
     )
       .then((response) => response.json())
       .then((data) => {
+        const { city_name, country_code } = data;
         data.data.forEach((item) => {
-          forecastTemp.push(item.temp);
-          forecastClouds.push(item.clouds);
-          forecastDateTimes.push(item.datetime);
+          const { temp, clouds, datetime } = item;
+          forecastTemp.push(temp);
+          forecastClouds.push(clouds);
+          forecastDateTimes.push(datetime);
         });
 
-        this.setState({ cityName: data.city_name, country: data.country_code });
+        this.setState({ cityName: city_name, country: country_code });
       })
       .catch((err) => {
         console.error(err);
@@ -117,9 +124,9 @@ class App extends Component {
       });
 
     this.setState({
-      forecastTemp: forecastTemp,
-      forecastClouds: forecastClouds,
-      forecastDateTimes: forecastDateTimes,
+      forecastTemp,
+      forecastClouds,
+      forecastDateTimes,
     });
   };
 
@@ -127,10 +134,8 @@ class App extends Component {
     if (navigator.geolocation) {
       this.setState({ isLoader: true });
       navigator.geolocation.getCurrentPosition((position) => {
-        this.getWeatherInfoByLocation(
-          position.coords.latitude,
-          position.coords.longitude
-        );
+        const { latitude, longitude } = position.coords;
+        this.getWeatherInfoByLocation(latitude, longitude);
       });
     }
   };
@@ -138,30 +143,29 @@ class App extends Component {
   getCurrentTime = () => {
     const date = new Date();
     this.setState({
-      numberDay: date.getDay() + "th",
-      weekDay: new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(
+      numberDay: `${date.getDay()}th`,
+      weekDay: new Intl.DateTimeFormat(dateFormat, { weekday: long }).format(
         date
       ),
-      month: date.toLocaleString("en-us", { month: "short" }),
+      month: date.toLocaleString(dateFormat, { month: short }),
       year: date.getFullYear(),
-      time: date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+      time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
     });
 
     setInterval(() => {
       const date = new Date();
       this.setState({
-        time:
-          date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+        time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
       });
     }, 1000);
   };
 
   convertToCelsius = (degrees) => {
-    return Math.round(degrees - 275.15) + "°C";
+    return `${Math.round(degrees - 275.15)}°C`;
   };
 
   convertPressure = (pressure) => {
-    return Math.round(pressure * 0.75) + "mm";
+    return `${Math.round(pressure * 0.75)}mm`;
   };
 
   componentDidMount() {
@@ -186,12 +190,13 @@ class App extends Component {
       forecastTemp,
       forecastClouds,
       forecastDateTimes,
+      isLoader,
     } = this.state;
 
     return (
       <div className="App">
         <div className="container">
-          {this.state.isLoader ? (
+          {isLoader ? (
             <Preloader />
           ) : (
             <>
