@@ -1,4 +1,5 @@
-import { React, Component } from "react";
+import { React, useEffect, useState, useDispatch } from "react";
+import { connect } from "react-redux";
 
 import CurrentWeatherIcon from "../current-weather-icon/current-weather-icon";
 import CurrentTemperature from "../current-temperature/current-temperature";
@@ -9,6 +10,8 @@ import Input from "../input/input";
 import Preloader from "../loader/loader";
 import CityName from "../city-name/city-name";
 
+import { setTemperature } from "../../actions/actions";
+
 import {
   forecastInfoHeader,
   dateFormat,
@@ -18,80 +21,77 @@ import {
 
 import "./App.scss";
 
-class App extends Component {
-  state = {
-    temperature: "",
-    windSpeed: "",
-    humidity: "",
-    pressure: "",
-    weatherIcon: "",
-    seconds: "",
-    numberDay: "",
-    weekDay: "",
-    month: "",
-    year: "",
-    time: "",
-    cityName: "",
-    country: "",
-    forecastTemp: [],
-    forecastClouds: [],
-    forecastDateTimes: [],
-    isLoader: false,
-  };
+const App = ({ temperature }) => {
+  // const [temperature, setTemperature] = useState("");
+  const [windSpeed, setWindSpeed] = useState("");
+  const [humidity, setHumidity] = useState("");
+  const [pressure, setPressure] = useState("");
+  const [weatherIcon, setWeatherIcon] = useState("");
+  const [numberDay, setNumberDay] = useState("");
+  const [weekDay, setWeekDay] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
+  const [time, setTime] = useState("");
+  const [cityName, setCityName] = useState("");
+  const [country, setCountry] = useState("");
+  const [forecastTemp, setForecastTemp] = useState([]);
+  const [forecastClouds, setForecastClouds] = useState([]);
+  const [forecastDateTimes, setForecastDateTimes] = useState([]);
+  const [isLoader, setIsLoader] = useState(false);
 
-  getWeatherInfo = (cityName) => {
-    this.setState({ isLoader: true });
+  const dispatch = useDispatch();
+
+  const getWeatherInfo = (cityName) => {
+    setIsLoader(true);
     fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=014875972702e245570e39f83fe6ab27`
     )
       .then((response) => response.json())
       .then((data) => {
         const { wind, main, weather, name } = data;
-        this.setState({
-          temperature: this.convertToCelsius(main.temp),
-          windSpeed: `${wind.speed}km/h`,
-          humidity: `${main.humidity}%`,
-          pressure: this.convertPressure(main.pressure),
-          weatherIcon: weather[0].icon,
-          cityName: name,
-        });
+        // setTemperature(convertToCelsius(main.temp));
+        dispatch(setTemperature(convertToCelsius(main.temp)));
+        setWindSpeed(`${wind.speed}km/h`);
+        setHumidity(`${main.humidity}%`);
+        setPressure(convertPressure(main.pressure));
+        setWeatherIcon(weather[0].icon);
+        setCityName(name);
       })
       .catch((err) => {
         console.error(err);
       })
       .finally(() => {
-        this.setState({ isLoader: false });
+        setIsLoader(false);
       });
   };
 
-  getWeatherInfoByLocation = (latitude, longitude) => {
-    this.setState({ isLoader: true });
+  const getWeatherInfoByLocation = (latitude, longitude) => {
+    setIsLoader(true);
     fetch(
       `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=08d1316ba8742c08076e7425c28c2614`
     )
       .then((response) => response.json())
       .then((data) => {
         const { wind, main, weather, name } = data;
-        this.getForecastInfo(name);
-        this.setState({
-          temperature: this.convertToCelsius(main.temp),
-          windSpeed: `${wind.speed}km/h`,
-          humidity: `${main.humidity}%`,
-          pressure: this.convertPressure(main.pressure),
-          weatherIcon: weather[0].icon,
-          cityName: name,
-        });
+        getForecastInfo(name);
+        // setTemperature(convertToCelsius(main.temp));
+        dispatch(setTemperature(convertToCelsius(main.temp)));
+        setWindSpeed(`${wind.speed}km/h`);
+        setHumidity(`${main.humidity}%`);
+        setPressure(convertPressure(main.pressure));
+        setWeatherIcon(weather[0].icon);
+        setCityName(name);
       })
       .catch((err) => {
         console.error(err);
       })
       .finally(() => {
-        this.setState({ isLoader: false });
+        setIsLoader(false);
       });
   };
 
-  getForecastInfo = (cityName) => {
-    this.setState({ isLoader: true });
+  const getForecastInfo = (cityName) => {
+    setIsLoader(true);
 
     const forecastTemp = [];
     const forecastClouds = [];
@@ -114,122 +114,101 @@ class App extends Component {
           forecastDateTimes.push(datetime);
         });
 
-        this.setState({ cityName: city_name, country: country_code });
+        setCityName(city_name);
+        setCountry(country_code);
       })
       .catch((err) => {
         console.error(err);
       })
       .finally(() => {
-        this.setState({ isLoader: false });
+        setIsLoader(false);
       });
 
-    this.setState({
-      forecastTemp,
-      forecastClouds,
-      forecastDateTimes,
-    });
+    setForecastTemp(forecastTemp);
+    setForecastClouds(forecastClouds);
+    setForecastDateTimes(forecastDateTimes);
   };
 
-  getCurrentLocationWeather = () => {
+  const getCurrentLocationWeather = () => {
     if (navigator.geolocation) {
-      this.setState({ isLoader: true });
+      setIsLoader(true);
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords;
-        this.getWeatherInfoByLocation(latitude, longitude);
+        getWeatherInfoByLocation(latitude, longitude);
       });
     }
   };
 
-  getCurrentTime = () => {
+  const getCurrentTime = () => {
     const date = new Date();
-    this.setState({
-      numberDay: `${date.getDay()}th`,
-      weekDay: new Intl.DateTimeFormat(dateFormat, { weekday: long }).format(
-        date
-      ),
-      month: date.toLocaleString(dateFormat, { month: short }),
-      year: date.getFullYear(),
-      time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
-    });
+
+    setNumberDay(`${date.getDay()}th`);
+    setWeekDay(
+      new Intl.DateTimeFormat(dateFormat, { weekday: long }).format(date)
+    );
+    setMonth(date.toLocaleString(dateFormat, { month: short }));
+    setYear(date.getFullYear());
+    setTime(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
 
     setInterval(() => {
       const date = new Date();
-      this.setState({
-        time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
-      });
+      setTime(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
     }, 1000);
   };
 
-  convertToCelsius = (degrees) => {
+  const convertToCelsius = (degrees) => {
     return `${Math.round(degrees - 275.15)}°C`;
   };
 
-  convertPressure = (pressure) => {
+  const convertPressure = (pressure) => {
     return `${Math.round(pressure * 0.75)}mm`;
   };
 
-  componentDidMount() {
-    this.getCurrentTime();
-    this.getCurrentLocationWeather();
-  }
+  useEffect(() => {
+    getCurrentTime();
+    getCurrentLocationWeather();
+  }, []);
 
-  render() {
-    const {
-      cityName,
-      country,
-      weatherIcon,
-      temperature,
-      numberDay,
-      weekDay,
-      month,
-      year,
-      time,
-      windSpeed,
-      humidity,
-      pressure,
-      forecastTemp,
-      forecastClouds,
-      forecastDateTimes,
-      isLoader,
-    } = this.state;
-
-    return (
-      <div className="App">
-        <div className="container">
-          {isLoader ? (
-            <Preloader />
-          ) : (
-            <>
-              <Input
-                getWeatherInfo={this.getWeatherInfo}
-                getForecastInfo={this.getForecastInfo}
-              />
-              {cityName && <CityName city={cityName} country={country} />}
-              <CurrentWeatherIcon weatherIcon={weatherIcon} />
-              <CurrentTemperature temperature={temperature} />
-              <CurrentTime
-                numberDay={numberDay}
-                weekDay={weekDay}
-                month={month}
-                year={year}
-                time={time}
-              />
-              <CurrentWeatherInfo
-                windSpeed={windSpeed}
-                humidity={humidity}
-                pressure={pressure}
-              />
-              <CustomSlider
-                temperature={forecastTemp}
-                clouds={forecastClouds}
-                date={forecastDateTimes}
-              />
-            </>
-          )}
-        </div>
+  return (
+    <div className="App">
+      <div className="container">
+        {isLoader ? (
+          <Preloader />
+        ) : (
+          <>
+            <Input
+              getWeatherInfo={getWeatherInfo}
+              getForecastInfo={getForecastInfo}
+            />
+            {cityName && <CityName city={cityName} country={country} />}
+            <CurrentWeatherIcon weatherIcon={weatherIcon} />
+            <CurrentTemperature temperature={123} />
+            <CurrentTime
+              numberDay={numberDay}
+              weekDay={weekDay}
+              month={month}
+              year={year}
+              time={time}
+            />
+            <CurrentWeatherInfo
+              windSpeed={windSpeed}
+              humidity={humidity}
+              pressure={pressure}
+            />
+            <CustomSlider
+              temperature={forecastTemp}
+              clouds={forecastClouds}
+              date={forecastDateTimes}
+            />
+          </>
+        )}
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
-export default App;
+const mapStateToProps = (state) => ({
+  temperature: state.temperature,
+});
+
+export default connect(mapStateToProps)(App);
