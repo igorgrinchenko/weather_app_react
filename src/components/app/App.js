@@ -1,4 +1,4 @@
-import { React, useEffect, useState, useDispatch } from "react";
+import { React, useEffect } from "react";
 import { connect } from "react-redux";
 
 import CurrentWeatherIcon from "../current-weather-icon/current-weather-icon";
@@ -10,7 +10,24 @@ import Input from "../input/input";
 import Preloader from "../loader/loader";
 import CityName from "../city-name/city-name";
 
-import { setTemperature } from "../../actions/actions";
+import {
+  setTemperature,
+  setWindSpeed,
+  setHumidity,
+  setPressure,
+  setWeatherIcon,
+  setCityName,
+  setCountry,
+  setNumberDay,
+  setWeekDay,
+  setMonth,
+  setYear,
+  setTime,
+  setForecastTemp,
+  setForecastClouds,
+  setForecastDateTimes,
+  setIsLoader,
+} from "../../actions/actions";
 
 import {
   forecastInfoHeader,
@@ -21,26 +38,40 @@ import {
 
 import "./App.scss";
 
-const App = ({ temperature }) => {
-  // const [temperature, setTemperature] = useState("");
-  const [windSpeed, setWindSpeed] = useState("");
-  const [humidity, setHumidity] = useState("");
-  const [pressure, setPressure] = useState("");
-  const [weatherIcon, setWeatherIcon] = useState("");
-  const [numberDay, setNumberDay] = useState("");
-  const [weekDay, setWeekDay] = useState("");
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState("");
-  const [time, setTime] = useState("");
-  const [cityName, setCityName] = useState("");
-  const [country, setCountry] = useState("");
-  const [forecastTemp, setForecastTemp] = useState([]);
-  const [forecastClouds, setForecastClouds] = useState([]);
-  const [forecastDateTimes, setForecastDateTimes] = useState([]);
-  const [isLoader, setIsLoader] = useState(false);
-
-  const dispatch = useDispatch();
-
+const App = ({
+  temperature,
+  windSpeed,
+  humidity,
+  pressure,
+  weatherIcon,
+  cityName,
+  country,
+  numberDay,
+  weekDay,
+  month,
+  year,
+  time,
+  forecastTemp,
+  forecastClouds,
+  forecastDateTimes,
+  isLoader,
+  setTemperature,
+  setWindSpeed,
+  setHumidity,
+  setPressure,
+  setWeatherIcon,
+  setCityName,
+  setCountry,
+  setNumberDay,
+  setWeekDay,
+  setMonth,
+  setYear,
+  setTime,
+  setForecastTemp,
+  setForecastClouds,
+  setForecastDateTimes,
+  setIsLoader,
+}) => {
   const getWeatherInfo = (cityName) => {
     setIsLoader(true);
     fetch(
@@ -49,8 +80,8 @@ const App = ({ temperature }) => {
       .then((response) => response.json())
       .then((data) => {
         const { wind, main, weather, name } = data;
-        // setTemperature(convertToCelsius(main.temp));
-        dispatch(setTemperature(convertToCelsius(main.temp)));
+
+        setTemperature(convertToCelsius(main.temp));
         setWindSpeed(`${wind.speed}km/h`);
         setHumidity(`${main.humidity}%`);
         setPressure(convertPressure(main.pressure));
@@ -74,8 +105,8 @@ const App = ({ temperature }) => {
       .then((data) => {
         const { wind, main, weather, name } = data;
         getForecastInfo(name);
-        // setTemperature(convertToCelsius(main.temp));
-        dispatch(setTemperature(convertToCelsius(main.temp)));
+
+        setTemperature(convertToCelsius(main.temp));
         setWindSpeed(`${wind.speed}km/h`);
         setHumidity(`${main.humidity}%`);
         setPressure(convertPressure(main.pressure));
@@ -142,7 +173,7 @@ const App = ({ temperature }) => {
   const getCurrentTime = () => {
     const date = new Date();
 
-    setNumberDay(`${date.getDay()}th`);
+    setNumberDay(`${date.getDate()}th`);
     setWeekDay(
       new Intl.DateTimeFormat(dateFormat, { weekday: long }).format(date)
     );
@@ -182,7 +213,7 @@ const App = ({ temperature }) => {
             />
             {cityName && <CityName city={cityName} country={country} />}
             <CurrentWeatherIcon weatherIcon={weatherIcon} />
-            <CurrentTemperature temperature={123} />
+            <CurrentTemperature temperature={temperature} />
             <CurrentTime
               numberDay={numberDay}
               weekDay={weekDay}
@@ -195,11 +226,17 @@ const App = ({ temperature }) => {
               humidity={humidity}
               pressure={pressure}
             />
-            <CustomSlider
-              temperature={forecastTemp}
-              clouds={forecastClouds}
-              date={forecastDateTimes}
-            />
+            {forecastTemp.length &&
+            forecastClouds.length &&
+            forecastDateTimes.length ? (
+              <CustomSlider
+                temperature={forecastTemp}
+                clouds={forecastClouds}
+                date={forecastDateTimes}
+              />
+            ) : (
+              <Preloader />
+            )}
           </>
         )}
       </div>
@@ -209,6 +246,59 @@ const App = ({ temperature }) => {
 
 const mapStateToProps = (state) => ({
   temperature: state.temperature,
+  windSpeed: state.windSpeed,
+  humidity: state.humidity,
+  pressure: state.pressure,
+  weatherIcon: state.weatherIcon,
+  cityName: state.cityName,
+  country: state.country,
+  numberDay: state.numberDay,
+  weekDay: state.weekDay,
+  month: state.month,
+  year: state.year,
+  time: state.time,
+  forecastTemp: state.forecastTemp,
+  forecastClouds: state.forecastClouds,
+  forecastDateTimes: state.forecastDateTimes,
+  isLoader: state.isLoader,
 });
 
-export default connect(mapStateToProps)(App);
+// const mapStateToProps = (state) => ({
+//   temperature: state,
+//   windSpeed: state,
+//   humidity: state,
+//   pressure: state,
+//   weatherIcon: state,
+//   cityName: state,
+//   country: state,
+//   numberDay: state,
+//   weekDay: state,
+//   month: state,
+//   year: state,
+//   time: state,
+//   forecastTemp: state,
+//   forecastClouds: state,
+//   forecastDateTimes: state,
+//   isLoader: state,
+// });
+
+const mapDispatchToProps = {
+  setTemperature,
+  setWindSpeed,
+  setHumidity,
+  setPressure,
+  setWeatherIcon,
+  setCityName,
+  setCountry,
+  setNumberDay,
+  setWeekDay,
+  setMonth,
+  setYear,
+  setTime,
+  setForecastTemp,
+  setForecastClouds,
+  setForecastDateTimes,
+  setIsLoader,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
