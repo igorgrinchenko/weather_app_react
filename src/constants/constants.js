@@ -1,6 +1,6 @@
 export const forecastInfoHeader = {
   "x-rapidapi-host": "weatherbit-v1-mashape.p.rapidapi.com",
-  "x-rapidapi-key": "485cc826a9msh6710cc5ccebd312p1dc5eejsn3e425a6cca76",
+  "x-rapidapi-key": "744d70b1b9mshfd5c1c0226cf0e5p1b1ff2jsnb572639d81ed",
 };
 
 export const dateFormat = "en-us";

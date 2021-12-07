@@ -16,8 +16,8 @@ const CurrentWeatherInfo = ({ windSpeed, humidity, pressure }) => {
 
   return (
     <div className="current-weather-info">
-      {weatherParams.map((paramName) => (
-        <div key={paramName}>
+      {weatherParams.map((paramName, index) => (
+        <div key={index}>
           <img src={paramsMap[paramName].imgSrc} alt={paramName} />
           <p>
             {paramName}: {paramsMap[paramName].value}
